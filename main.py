@@ -54,3 +54,13 @@ def tokenize(lang):
     tensor = tf.keras.preprocessing.sequence.pad_sequences(tensor, padding='post')
 
     return tensor, lang_tokenizer
+
+
+def load_dataset(path, num_examples=None):
+    # criando pares de entrada e saída limpos
+    target_lang, input_lang = create_dataset(path, num_examples)
+
+    input_tensor, input_lang_tokenizer = tokenize(input_lang)
+    target_tensor, target_lang_tokenizer = tokenize(target_lang)
+
+    return input_tensor, target_tensor, input_lang_tokenizer, target_lang_tokenizer
