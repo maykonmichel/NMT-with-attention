@@ -88,3 +88,28 @@ vocab_tar_size = len(targ_lang.word_index) + 1
 
 dataset = tf.data.Dataset.from_tensor_slices((input_tensor_train, target_tensor_train)).shuffle(BUFFER_SIZE)
 dataset = dataset.batch(BATCH_SIZE, drop_remainder=True)
+
+
+class Encoder(tf.keras.Model):
+    def __init__(self, vocab_size, embedding_dim, enc_units, batch_sz):
+        super(Encoder, self).__init__()
+        self.batch_sz = batch_sz
+        self.enc_units = enc_units
+        self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
+        self.gru = tf.keras.layers.GRU(self.enc_units,
+                                       return_sequences=True,
+                                       return_state=True,
+                                       recurrent_initializer='glorot_uniform')
+
+    def call(self, x, hidden):
+        x = self.embedding(x)
+        output, state = self.gru(x, initial_state=hidden)
+        return output, state
+
+    def initialize_hidden_state(self):
+        return tf.zeros((self.batch_sz, self.enc_units))
+
+
+encoder = Encoder(vocab_inp_size, embedding_dim, units, BATCH_SIZE)
+
+
