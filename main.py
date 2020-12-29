@@ -1,3 +1,4 @@
+import re
 import unicodedata
 
 path_to_file = "./por-eng/por.txt"
@@ -7,3 +8,25 @@ path_to_file = "./por-eng/por.txt"
 def unicode_to_ascii(s):
     return ''.join(c for c in unicodedata.normalize('NFD', s)
                    if unicodedata.category(c) != 'Mn')
+
+
+def preprocess_sentence(w):
+    w = unicode_to_ascii(w.lower().strip())
+
+    # criando um espaço entre uma palavra e a pontuação que a segue
+    # eg: "he is a boy." => "he is a boy ."
+    # Referência:
+    # https://stackoverflow.com/questions/3645931/python-padding-punctuation-with-white-spaces-keeping-punctuation
+    w = re.sub(r"([?.!,¿])", r" \1 ", w)
+    w = re.sub(r'[" "]+', " ", w)
+
+    # replacing everything with space except (a-z, A-Z, ".", "?", "!", ",")
+    w = re.sub(r"[^a-zA-Z?.!,¿]+", " ", w)
+
+    w = w.strip()
+
+    # adicionar um marcador de início e fim à frase
+    # para que o modelo saiba quando começar e parar de prever.
+    w = '<start> ' + w + ' <end>'
+    return w
+
