@@ -325,3 +325,13 @@ def plot_attention(attention, sentence, predicted_sentence):
     ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
 
     plt.show()
+
+
+def translate(sentence):
+    result, sentence, attention_plot = evaluate(sentence)
+
+    print('Input: %s' % (sentence))
+    print('Predicted translation: {}'.format(result))
+
+    attention_plot = attention_plot[:len(result.split(' ')), :len(sentence.split(' '))]
+    plot_attention(attention_plot, sentence.split(' '), result.split(' '))
