@@ -3,6 +3,7 @@ import re
 
 import tensorflow as tf
 import unicodedata
+from sklearn.model_selection import train_test_split
 
 path_to_file = "./por-eng/por.txt"
 
@@ -42,7 +43,9 @@ def create_dataset(path, num_examples):
 
     word_pairs = [[preprocess_sentence(w) for w in l.split('\t')] for l in lines[:num_examples]]
 
-    return zip(*word_pairs)
+    target, input, _ = zip(*word_pairs)
+
+    return target, input
 
 
 def tokenize(lang):
@@ -64,3 +67,24 @@ def load_dataset(path, num_examples=None):
     target_tensor, target_lang_tokenizer = tokenize(target_lang)
 
     return input_tensor, target_tensor, input_lang_tokenizer, target_lang_tokenizer
+
+
+num_examples = 30000
+input_tensor, target_tensor, inp_lang, targ_lang = load_dataset(path_to_file, num_examples)
+
+max_length_targ, max_length_inp = target_tensor.shape[1], input_tensor.shape[1]
+
+# Criação de conjuntos de treinamento e validação usando uma divisão 80-20
+input_tensor_train, input_tensor_val, target_tensor_train, target_tensor_val = \
+    train_test_split(input_tensor, target_tensor, test_size=0.2)
+
+BUFFER_SIZE = len(input_tensor_train)
+BATCH_SIZE = 64
+steps_per_epoch = len(input_tensor_train) // BATCH_SIZE
+embedding_dim = 256
+units = 1024
+vocab_inp_size = len(inp_lang.word_index) + 1
+vocab_tar_size = len(targ_lang.word_index) + 1
+
+dataset = tf.data.Dataset.from_tensor_slices((input_tensor_train, target_tensor_train)).shuffle(BUFFER_SIZE)
+dataset = dataset.batch(BATCH_SIZE, drop_remainder=True)
