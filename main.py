@@ -1,4 +1,5 @@
 import io
+import os
 import re
 
 import tensorflow as tf
@@ -198,3 +199,10 @@ def loss_function(real, pred):
     loss_ *= mask
 
     return tf.reduce_mean(loss_)
+
+
+checkpoint_dir = './training_checkpoints'
+checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
+checkpoint = tf.train.Checkpoint(optimizer=optimizer,
+                                 encoder=encoder,
+                                 decoder=decoder)
