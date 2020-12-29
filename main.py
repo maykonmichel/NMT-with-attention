@@ -335,3 +335,9 @@ def translate(sentence):
 
     attention_plot = attention_plot[:len(result.split(' ')), :len(sentence.split(' '))]
     plot_attention(attention_plot, sentence.split(' '), result.split(' '))
+
+
+# restoring the latest checkpoint in checkpoint_dir
+checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
+
+translate(u'está muito frio aqui.')
